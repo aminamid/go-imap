@@ -15,9 +15,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/emersion/go-imap"
-	"github.com/emersion/go-imap/commands"
-	"github.com/emersion/go-imap/responses"
+	"github.com/aminamid/go-imap"
+	"github.com/aminamid/go-imap/commands"
+	"github.com/aminamid/go-imap/responses"
 )
 
 // errClosed is used when a connection is closed while waiting for a command
@@ -580,6 +580,18 @@ func (c *Client) SetDebug(w io.Writer) {
 }
 
 // New creates a new client from an existing connection.
+func CustomNew(conn net.Conn, hostname string, istls bool) (*Client, error) {
+	c, err := New(conn)
+	if err != nil {
+		return nil, err
+	}
+	c.isTLS = istls
+	c.serverName = hostname
+
+	return c, nil
+}
+
+// New creates a new client from an existing connection.
 func New(conn net.Conn) (*Client, error) {
 	continues := make(chan bool)
 	w := imap.NewClientWriter(nil, continues)
@@ -648,6 +660,43 @@ func DialWithDialer(dialer Dialer, addr string) (*Client, error) {
 	return c, nil
 }
 
+func CustomDial(srcip, dst_host_port string, timeoutsec int64) (string, net.Conn, error) {
+	dialer := net.Dialer{
+		Timeout: time.Duration(timeoutsec) * time.Second,
+	}
+	if len(srcip) > 0 {
+		srcIP := net.ParseIP(srcip)
+		srcAddr := &net.TCPAddr{IP: srcIP}
+		dialer.LocalAddr = srcAddr
+	}
+	host, _, _ := net.SplitHostPort(dst_host_port)
+	conn, err := dialer.Dial("tcp", dst_host_port)
+	if err != nil {
+		return host, nil, err
+	}
+	return host, conn, nil
+}
+
+// 	// We don't return to the caller until we try to receive a greeting. As such,
+// 	// there is no way to set the client's Timeout for that action. As a
+// 	// workaround, if the dialer has a timeout set, use that for the connection's
+// 	// deadline.
+// 	if netDialer, ok := dialer.(*net.Dialer); ok && netDialer.Timeout > 0 {
+// 		err := conn.SetDeadline(time.Now().Add(netDialer.Timeout))
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 	}
+//
+// 	c, err := New(conn)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+//
+// 	c.serverName, _, _ = net.SplitHostPort(addr)
+// 	return c, nil
+// }
+
 // DialTLS connects to an IMAP server using an encrypted connection.
 func DialTLS(addr string, tlsConfig *tls.Config) (*Client, error) {
 	return DialWithDialerTLS(new(net.Dialer), addr, tlsConfig)
@@ -692,4 +741,23 @@ func DialWithDialerTLS(dialer Dialer, addr string, tlsConfig *tls.Config) (*Clie
 	c.isTLS = true
 	c.serverName = serverName
 	return c, nil
+}
+func CustomDialTLS(srcip, dst_host_port string, timeoutsec int64, tlsConfig *tls.Config) (string, net.Conn, error) {
+	tlsDialer := tls.Dialer{
+		NetDialer: &net.Dialer{
+			Timeout: time.Duration(timeoutsec) * time.Second,
+		},
+		Config: tlsConfig,
+	}
+	if len(srcip) > 0 {
+		srcIP := net.ParseIP(srcip)
+		srcAddr := &net.TCPAddr{IP: srcIP}
+		tlsDialer.NetDialer.LocalAddr = srcAddr
+	}
+	host, _, _ := net.SplitHostPort(dst_host_port)
+	conn, err := tlsDialer.Dial("tcp", dst_host_port)
+	if err != nil {
+		return host, nil, err
+	}
+	return host, conn, nil
 }
