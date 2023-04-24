@@ -8,7 +8,7 @@ import (
 	"mime"
 	"strings"
 
-	"github.com/emersion/go-imap"
+	"github.com/aminamid/go-imap"
 	"github.com/emersion/go-message/textproto"
 )
 

@@ -5,9 +5,9 @@ import (
 	"errors"
 	"net"
 
-	"github.com/emersion/go-imap"
-	"github.com/emersion/go-imap/commands"
-	"github.com/emersion/go-imap/responses"
+	"github.com/aminamid/go-imap"
+	"github.com/aminamid/go-imap/commands"
+	"github.com/aminamid/go-imap/responses"
 	"github.com/emersion/go-sasl"
 )
 

@@ -11,9 +11,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/emersion/go-imap"
-	"github.com/emersion/go-imap/backend"
-	"github.com/emersion/go-imap/responses"
+	"github.com/aminamid/go-imap"
+	"github.com/aminamid/go-imap/backend"
+	"github.com/aminamid/go-imap/responses"
 	"github.com/emersion/go-sasl"
 )
 
@@ -401,7 +401,7 @@ func (s *Server) Close() error {
 }
 
 // Enable some IMAP extensions on this server.
-// Wiki entry: https://github.com/emersion/go-imap/wiki/Using-extensions
+// Wiki entry: https://github.com/aminamid/go-imap/wiki/Using-extensions
 func (s *Server) Enable(extensions ...Extension) {
 	for _, ext := range extensions {
 		// Ignore built-in extensions
@@ -413,7 +413,7 @@ func (s *Server) Enable(extensions ...Extension) {
 }
 
 // Enable an authentication mechanism on this server.
-// Wiki entry: https://github.com/emersion/go-imap/wiki/Using-authentication-mechanisms
+// Wiki entry: https://github.com/aminamid/go-imap/wiki/Using-authentication-mechanisms
 func (s *Server) EnableAuth(name string, f SASLServerFactory) {
 	s.auths[name] = f
 }
