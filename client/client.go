@@ -580,14 +580,14 @@ func (c *Client) SetDebug(w io.Writer) {
 }
 
 // New creates a new client from an existing connection.
-func CustomNew(conn net.Conn, hostname string, istls bool) (*Client, error) {
+func CustomNew(conn net.Conn, hostname string, istls bool, timeoutsec int64) (*Client, error) {
 	c, err := New(conn)
 	if err != nil {
 		return nil, err
 	}
 	c.isTLS = istls
 	c.serverName = hostname
-
+	c.Timeout = time.Duration(timeoutsec) * time.Second
 	return c, nil
 }
 
