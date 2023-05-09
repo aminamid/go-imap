@@ -5,6 +5,8 @@ import (
 
 	"github.com/aminamid/go-imap"
 	"github.com/aminamid/go-imap/commands"
+	"github.com/aminamid/go-imap/responses"
+	"github.com/aminamid/go-imap/id"
 )
 
 // ErrAlreadyLoggedOut is returned if Logout is called when the client is
@@ -85,4 +87,26 @@ func (c *Client) Logout() error {
 		return status.Err()
 	}
 	return nil
+}
+
+// ID sends an ID command to the server and returns the server's ID.
+func (c *Client) ID(clientID id.ID) (serverID id.ID, err error) {
+	if state := c.State(); imap.ConnectedState&state != state {
+		return nil, errors.New("Not connected")
+	}
+
+	var cmd imap.Commander = &commands.Id{ID: clientID}
+
+	res := &responses.Id{}
+	status, err := c.Execute(cmd, res)
+	if err != nil {
+		return
+	}
+	if err = status.Err(); err != nil {
+		return
+	}
+
+	serverID = res.ID
+
+	return
 }
